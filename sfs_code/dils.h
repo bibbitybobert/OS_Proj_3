@@ -17,7 +17,7 @@ void read_file(char* fileName);
 
 void read_file_long(char* fileName);
 
-void get_file_block(sfs_inode_t n, uint32_t blk_num, sfs_dirent* data);
+void get_file_block(sfs_inode_t n, uint32_t blk_num, char* data);
 
 
 #endif
