@@ -19,5 +19,9 @@ void read_file_long(char* fileName);
 
 void get_file_block(sfs_inode_t n, uint32_t blk_num, char* data);
 
+void get_perms(uint16_t perm_int, char* perms);
+
+void get_atime(uint32_t atime, char* month, int day, char* time_year);
+
 
 #endif

@@ -141,8 +141,24 @@ void read_file_long(char* fileName){
                 sfs_inode_t* file_perms = (sfs_inode_t *)perm_buffer;
 
                 int which_inode = dir[i].inode%2;
-                printf("perms: %d\n", file_perms[which_inode].perm);
-                printf("%s\n", dir[i].name);
+                char perms[11] = {'-','-','-','-','-','-','-','-','-','-','\0'};
+                get_perms(file_perms[which_inode].perm, perms);
+
+                char* month;
+                int day;
+                char* time_year;
+
+                get_atime(file_perms[which_inode].atime, month, day, time_year);
+                printf("%10s %2d %2d %2d %5ld %3s %2d %5s %s\n",
+                perms,
+                file_perms[which_inode].refcount, 
+                file_perms[which_inode].owner,
+                file_perms[which_inode].group,
+                file_perms[which_inode].size,
+                month,
+                day,
+                time_year,
+                dir[i].name);
             }
         }
         if(num_files == num_read_files){
@@ -164,7 +180,6 @@ void get_file_block(sfs_inode_t n, uint32_t blk_num, char* data){
     else if(blk_num < (5 + 32 + (32*32))){
         driver_read(ptrs, n.dindirect);
         int tmp = (blk_num-5-32)/32;
-        tmp = ptrs[tmp];
         driver_read(ptrs, ptrs[tmp]);
         tmp = (blk_num-5-32)%32;
         driver_read(data, ptrs[tmp]);
@@ -172,13 +187,60 @@ void get_file_block(sfs_inode_t n, uint32_t blk_num, char* data){
     else if(blk_num < (5 + 32 + (32*32) + (32*32*32))){
         driver_read(ptrs, n.tindirect);
         int tmp = (blk_num-5-32-(32*32))/32;
-        tmp = ptrs[tmp];
         driver_read(ptrs, ptrs[tmp]);
         tmp = (blk_num-5-32-(32*32))%32;
         driver_read(data, ptrs[tmp]);
+
     }
     else{
         printf("error reading in data\n");
         exit(-1);
     }
+}
+
+void get_perms(uint16_t perms_int, char* perms_char){
+    uint16_t mask = 512;
+    //char perms[10] = {'-','-', '-', '-','-','-', '-', '-', '-', '-'};
+    for(int i = 0; i < 10; i++){
+        mask = mask >> 1;
+        if(mask & perms_int){
+            perms_char[i] = '1';
+        }
+    }
+
+    if(perms_char[0] == '1'){
+        perms_char[0] = 'd';
+    }
+    if(perms_char[1] == '1'){
+        perms_char[1] = 'r';
+    }
+    if(perms_char[2] == '1'){
+        perms_char[2] = 'w';
+    }
+    if(perms_char[3] == '1'){
+        perms_char[3] = 'x';
+    }
+    if(perms_char[4] == '1'){
+        perms_char[4] = 'r';
+    }
+    if(perms_char[5] == '1'){
+        perms_char[5] = 'w';
+    }
+    if(perms_char[6] == '1'){
+        perms_char[6] = 'x';
+    }
+    if(perms_char[7] == '1'){
+        perms_char[7] = 'r';
+    }
+    if(perms_char[8] == '1'){
+        perms_char[8] = 'w';
+    }
+    if(perms_char[9] == '1'){
+        perms_char[9] = 'x';
+    }
+
+    void get_atime(uint32_t atime, char* month, int day, char* time_year){
+        
+    }
+
 }
