@@ -21,7 +21,8 @@ int main(int argc, char* argv[]){
     else if(argc == 3){
         fileName = argv[1];
         option = argv[2];
-        if(option == "-l"){
+        char longOpt[2] = "-l";
+        if(!strcmp(option, "-l")){
             read_file_long(fileName);
         }
         else{
@@ -48,33 +49,40 @@ void read_file(char* fileName){
         if(super->fsmagic == VMLARIX_SFS_MAGIC &&
         ! strcmp(super->fstypestr,VMLARIX_SFS_TYPESTR))
         {
-        printf("superblock found at block %d\n", i);
         break;
         }
         i++;
     }
 
+    // printf("Num blocks: %d\n", super->num_blocks);
+    // printf("num_inode blocks: %d\n", super->num_inode_blocks);
+    // printf("num free inodes: %d\n", super->inodes_free);
 
     sfs_inode_t inodes[2];
     driver_read(inodes, super->inodes);
 
-    char buffer[128];
-
     //driver_read(buffer, inodes[0].direct[0]);
-    get_file_block(inodes[0], 0, buffer);
+    int inodes_per_blk = super->block_size / sizeof(sfs_inode_t);
+    int num_read_files = 0;
+    int num_files = inodes[0].size / sizeof(sfs_dirent);
+    for(int blk = 0; blk < super->num_inode_blocks; blk++){
+        char buffer[128];
+        get_file_block(inodes[0], blk, buffer);
 
-    sfs_dirent* dir = (sfs_dirent *)buffer;
-    int entries_per_block = super->block_size / sizeof(sfs_dirent);
+        sfs_dirent* dir = (sfs_dirent *)buffer;
+        int entries_per_block = super->block_size / sizeof(sfs_dirent);
 
-    printf("entries per block: %d\n", entries_per_block);
-
-    for(int i = 0; i < entries_per_block; i++){
-        if(dir[i].inode >= 0){
-            printf("name: %s\n", dir[i].name);
+        for(int i = 0; i < entries_per_block; i++){
+            if(dir[i].inode >= 0 && num_read_files < num_files){
+                num_read_files++;
+                printf("%s\n", dir[i].name);
+            }
+        }
+        if(num_files == num_read_files){
+            return;
         }
     }
 
-    
     /*
     printing out access time
     day of week - month - day - time(military) - year
@@ -95,6 +103,52 @@ void read_file(char* fileName){
 }
 
 void read_file_long(char* fileName){
+    char raw_superblock[128];
+    sfs_superblock *super = (sfs_superblock *)raw_superblock;
+    driver_attach_disk_image(fileName, 128);
+
+    int i = 0;
+    while(i < 128){
+        driver_read(super, i);
+        if(super->fsmagic == VMLARIX_SFS_MAGIC &&
+        ! strcmp(super->fstypestr,VMLARIX_SFS_TYPESTR))
+        {
+        break;
+        }
+        i++;
+    }
+
+    char raw_root_inode[128];
+    driver_read(raw_root_inode, super->inodes);
+
+    sfs_inode_t * inodes = (sfs_inode_t *)raw_root_inode;
+
+    int inodes_per_blk = super->block_size / sizeof(sfs_inode_t);
+    int num_read_files = 0;
+    int num_files = inodes[0].size / sizeof(sfs_dirent);
+    for(int blk = 0; blk < super->num_inode_blocks; blk++){
+        char buffer[128];
+        get_file_block(inodes[0], blk, buffer);
+
+        sfs_dirent* dir = (sfs_dirent *)buffer;
+        int entries_per_block = super->block_size / sizeof(sfs_dirent);
+
+        for(int i = 0; i < entries_per_block; i++){
+            if(dir[i].inode >= 0 && num_read_files < num_files){
+                num_read_files++;
+                char perm_buffer[128];
+                driver_read(perm_buffer, super->inodes + (dir[i].inode/2));
+                sfs_inode_t* file_perms = (sfs_inode_t *)perm_buffer;
+
+                int which_inode = dir[i].inode%2;
+                printf("perms: %d\n", file_perms[which_inode].perm);
+                printf("%s\n", dir[i].name);
+            }
+        }
+        if(num_files == num_read_files){
+            return;
+        }
+    }
 
 }
 
@@ -117,7 +171,11 @@ void get_file_block(sfs_inode_t n, uint32_t blk_num, char* data){
     }
     else if(blk_num < (5 + 32 + (32*32) + (32*32*32))){
         driver_read(ptrs, n.tindirect);
-        //do later
+        int tmp = (blk_num-5-32-(32*32))/32;
+        tmp = ptrs[tmp];
+        driver_read(ptrs, ptrs[tmp]);
+        tmp = (blk_num-5-32-(32*32))%32;
+        driver_read(data, ptrs[tmp]);
     }
     else{
         printf("error reading in data\n");
