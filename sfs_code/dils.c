@@ -143,22 +143,38 @@ void read_file_long(char* fileName){
                 int which_inode = dir[i].inode%2;
                 char perms[11] = {'-','-','-','-','-','-','-','-','-','-','\0'};
                 get_perms(file_perms[which_inode].perm, perms);
+                // char dow[4];
+                // char month[4];
+                // char time[6];
+                // int day;
+                // int year;
+                //get_atime(file_perms[which_inode].atime, dow, month, day, time, year);
+                // printf("%10s %2d %2d %2d %5ld %3s %3s %2d %5s %4d %s\n",
+                // perms,
+                // file_perms[which_inode].refcount, 
+                // file_perms[which_inode].owner,
+                // file_perms[which_inode].group,
+                // file_perms[which_inode].size,
+                // dow,
+                // month, 
+                // day,
+                // time,
+                // year,
+                // dir[i].name);
+                time_t realtime = (time_t)file_perms[which_inode].atime;
+                struct tm* time_tm = localtime(&realtime);
 
-                char* month;
-                int day;
-                char* time_year;
-
-                get_atime(file_perms[which_inode].atime, month, day, time_year);
-                printf("%10s %2d %2d %2d %5ld %3s %2d %5s %s\n",
+                char time_str[25] = "";
+                strftime(time_str, 25, "%c", time_tm);
+                printf("%10s %2d %2d %2d %5ld %24s ",
                 perms,
-                file_perms[which_inode].refcount, 
+                file_perms[which_inode].refcount,
                 file_perms[which_inode].owner,
                 file_perms[which_inode].group,
                 file_perms[which_inode].size,
-                month,
-                day,
-                time_year,
-                dir[i].name);
+                time_str);
+                printf("%s\n", dir[i].name);
+
             }
         }
         if(num_files == num_read_files){
@@ -208,39 +224,61 @@ void get_perms(uint16_t perms_int, char* perms_char){
         }
     }
 
-    if(perms_char[0] == '1'){
-        perms_char[0] = 'd';
-    }
-    if(perms_char[1] == '1'){
-        perms_char[1] = 'r';
-    }
-    if(perms_char[2] == '1'){
-        perms_char[2] = 'w';
-    }
-    if(perms_char[3] == '1'){
-        perms_char[3] = 'x';
-    }
-    if(perms_char[4] == '1'){
-        perms_char[4] = 'r';
-    }
-    if(perms_char[5] == '1'){
-        perms_char[5] = 'w';
-    }
-    if(perms_char[6] == '1'){
-        perms_char[6] = 'x';
-    }
-    if(perms_char[7] == '1'){
-        perms_char[7] = 'r';
-    }
-    if(perms_char[8] == '1'){
-        perms_char[8] = 'w';
-    }
-    if(perms_char[9] == '1'){
-        perms_char[9] = 'x';
+    if(perms_char[0] == '1'){perms_char[0] = 'd';}
+    if(perms_char[1] == '1'){perms_char[1] = 'r';}
+    if(perms_char[2] == '1'){perms_char[2] = 'w';}
+    if(perms_char[3] == '1'){perms_char[3] = 'x';}
+    if(perms_char[4] == '1'){perms_char[4] = 'r';}
+    if(perms_char[5] == '1'){perms_char[5] = 'w';}
+    if(perms_char[6] == '1'){perms_char[6] = 'x';}
+    if(perms_char[7] == '1'){perms_char[7] = 'r';}
+    if(perms_char[8] == '1'){perms_char[8] = 'w';}
+    if(perms_char[9] == '1'){perms_char[9] = 'x';}
+}
+
+void get_atime(uint32_t atime, char* dow, char* month, int day, char* time, int year){
+    //day of week - month - day - time(military) - year
+    char hr[3];
+    char min[3];
+
+    struct tm * timeInfo;
+    time_t atime_time = atime;
+    timeInfo = localtime(&atime_time);
+
+    switch (timeInfo->tm_wday)
+    {
+        case 0: dow = "Sun";break;
+        case 1: dow = "Mon";break;
+        case 2: dow = "Tue";break;
+        case 3: dow = "Wed";break;
+        case 4: dow = "Thu";break;
+        case 5: dow = "Fri";break;
+        case 6: dow = "Sat";break;
+        default: break;
     }
 
-    void get_atime(uint32_t atime, char* month, int day, char* time_year){
-        
+    switch(timeInfo->tm_mon){
+        case 0: month = "Jan";break;
+        case 1: month = "Feb";break;
+        case 2: month = "Mar";break;
+        case 3: month = "Apr";break;
+        case 4: month = "May";break;
+        case 5: month = "Jun";break;
+        case 6: month = "Jul";break;
+        case 7: month = "Aug";break;
+        case 8: month = "Sep";break;
+        case 9: month = "Oct";break;
+        case 10: month = "Nov";break;
+        case 11: month = "Dec";break;
+        default: break;
     }
 
+    day = timeInfo->tm_mday;
+    sprintf(hr, "%d", timeInfo->tm_hour);
+    sprintf(min, "%d", timeInfo->tm_min);
+    strcat(time, hr);
+    char* colon = ":";
+    strcat(time, colon);
+    strcat(time, min);
+    year = timeInfo->tm_year;
 }

@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <bitmap.h>
 #include <stdlib.h>
+#include <time.h>
 
 int main(int argc, char* argv[]);
 
@@ -21,7 +22,7 @@ void get_file_block(sfs_inode_t n, uint32_t blk_num, char* data);
 
 void get_perms(uint16_t perm_int, char* perms);
 
-void get_atime(uint32_t atime, char* month, int day, char* time_year);
+void get_atime(uint32_t atime, char* dow, char* month, int day, char* time, int year);
 
 
 #endif
