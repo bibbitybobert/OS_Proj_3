@@ -1,5 +1,5 @@
-#ifndef DILS_H
-#define DILS_H
+#ifndef DICPO_H
+#define DICPO_H
 
 #include <driver.h>
 #include <sfs_dir.h>
@@ -16,13 +16,7 @@
 
 int main(int argc, char* argv[]);
 
-void read_file(char* fileName);
-
-void read_file_long(char* fileName);
-
-void get_perms(uint16_t perm_int, char* perms);
-
-void get_atime(uint32_t atime, char* dow, char* month, int day, char* time, int year);
+void read_in_file(char* diskImg, FILE* file, char* fileName);
 
 
 #endif

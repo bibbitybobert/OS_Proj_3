@@ -11,7 +11,7 @@ int main(int argc, char* argv[]){
     char *fileName;
     char *option;
     if(argc < 2){
-        printf("error please try again\n");
+        printf("Incorrect number of arguments\n");
         return -1;
     }
     else if(argc == 2){
@@ -26,12 +26,12 @@ int main(int argc, char* argv[]){
             read_file_long(fileName);
         }
         else{
-            printf("Error please try again\n");
+            printf("Unknown option\n");
             return -1;
         }
     }
     else{
-        printf("Error please try again\n");
+        printf("Incorrect number of arguments\n");
         return -1;
     }
     return 0;
@@ -182,36 +182,6 @@ void read_file_long(char* fileName){
         }
     }
 
-}
-
-void get_file_block(sfs_inode_t n, uint32_t blk_num, char* data){
-    uint32_t ptrs[32];
-    if(blk_num < 5){
-        driver_read(data, n.direct[blk_num]);
-    }
-    else if(blk_num < 5 + 32){ 
-        driver_read(ptrs, n.indirect);
-        driver_read(data, ptrs[blk_num-5]);
-    }
-    else if(blk_num < (5 + 32 + (32*32))){
-        driver_read(ptrs, n.dindirect);
-        int tmp = (blk_num-5-32)/32;
-        driver_read(ptrs, ptrs[tmp]);
-        tmp = (blk_num-5-32)%32;
-        driver_read(data, ptrs[tmp]);
-    }
-    else if(blk_num < (5 + 32 + (32*32) + (32*32*32))){
-        driver_read(ptrs, n.tindirect);
-        int tmp = (blk_num-5-32-(32*32))/32;
-        driver_read(ptrs, ptrs[tmp]);
-        tmp = (blk_num-5-32-(32*32))%32;
-        driver_read(data, ptrs[tmp]);
-
-    }
-    else{
-        printf("error reading in data\n");
-        exit(-1);
-    }
 }
 
 void get_perms(uint16_t perms_int, char* perms_char){
