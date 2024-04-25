@@ -60,8 +60,6 @@ void read_in_file(char* disk, FILE* file, char* fileName){
                     driver_read(data, start_blk);
                     sfs_inode_t* data_inodes = (sfs_inode_t *)data;
                     int which_inode = dir[i].inode%2;
-                    printf("file size: %ld\n", data_inodes[which_inode].size);
-                    printf("total num blks to read: %ld\n", data_inodes[which_inode].size / super->block_size);
                     char file_content[super->block_size];
                     for(int blk = 0; blk <= (data_inodes[which_inode].size / super->block_size); blk++){
                         get_file_block(data_inodes[which_inode], blk, file_content);
