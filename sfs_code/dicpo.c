@@ -11,7 +11,7 @@ int main(int argc, char* argv[]){
     else if(argc == 3){
         diskImgName = argv[1];
         fileName = argv[2];
-        FILE *fptr = fopen(fileName, "w");
+        FILE *fptr = fopen(fileName, "wb");
         read_in_file(diskImgName, fptr, fileName);
         fclose(fptr);
     }
@@ -60,12 +60,20 @@ void read_in_file(char* disk, FILE* file, char* fileName){
                     driver_read(data, start_blk);
                     sfs_inode_t* data_inodes = (sfs_inode_t *)data;
                     int which_inode = dir[i].inode%2;
+                    printf("file size: %ld\n", data_inodes[which_inode].size);
                     printf("total num blks to read: %ld\n", data_inodes[which_inode].size / super->block_size);
-                    for(int blk = 0; blk < data_inodes[which_inode].size / super->block_size; blk++){
-                        char file_content[super->block_size + 1];
+                    char file_content[super->block_size];
+                    for(int blk = 0; blk <= (data_inodes[which_inode].size / super->block_size); blk++){
                         get_file_block(data_inodes[which_inode], blk, file_content);
-                        file_content[super->block_size] = '\0';
-                        fprintf(file, "%s", file_content);
+                        if(blk == data_inodes[which_inode].size / super->block_size){
+                            int amt_to_write = data_inodes[which_inode].size % super->block_size;
+                            fwrite(file_content, amt_to_write, 1, file);
+                        }
+                        else{
+                            fwrite(file_content, 128, 1, file);
+                        }
+                        // fprintf(file, "%s", file_content);
+                        strcpy(file_content, "");
                     }
 
                 }
