@@ -55,10 +55,19 @@ void read_in_file(char* disk, FILE* file, char* fileName){
             if(dir[i].inode >= 0 && num_read_files < num_files){
                 num_read_files++;
                 if(!strcmp(dir[i].name, fileName)){
-                    // char data[128];
-                    // get_file_block(inodes[0], , data);
-                    // printf("data: \n%s", data);
-                    printf("found at inode: %d\n", dir[i].inode);
+                    char data[128];
+                    int start_blk = super->inodes + (dir[i].inode/2);
+                    driver_read(data, start_blk);
+                    sfs_inode_t* data_inodes = (sfs_inode_t *)data;
+                    int which_inode = dir[i].inode%2;
+                    printf("total num blks to read: %ld\n", data_inodes[which_inode].size / super->block_size);
+                    for(int blk = 0; blk < data_inodes[which_inode].size / super->block_size; blk++){
+                        char file_content[super->block_size + 1];
+                        get_file_block(data_inodes[which_inode], blk, file_content);
+                        file_content[super->block_size] = '\0';
+                        fprintf(file, "%s", file_content);
+                    }
+
                 }
             }
         }

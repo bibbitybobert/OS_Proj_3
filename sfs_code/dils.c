@@ -143,24 +143,6 @@ void read_file_long(char* fileName){
                 int which_inode = dir[i].inode%2;
                 char perms[11] = {'-','-','-','-','-','-','-','-','-','-','\0'};
                 get_perms(file_perms[which_inode].perm, perms);
-                // char dow[4];
-                // char month[4];
-                // char time[6];
-                // int day;
-                // int year;
-                //get_atime(file_perms[which_inode].atime, dow, month, day, time, year);
-                // printf("%10s %2d %2d %2d %5ld %3s %3s %2d %5s %4d %s\n",
-                // perms,
-                // file_perms[which_inode].refcount, 
-                // file_perms[which_inode].owner,
-                // file_perms[which_inode].group,
-                // file_perms[which_inode].size,
-                // dow,
-                // month, 
-                // day,
-                // time,
-                // year,
-                // dir[i].name);
                 time_t realtime = (time_t)file_perms[which_inode].atime;
                 struct tm* time_tm = localtime(&realtime);
 
