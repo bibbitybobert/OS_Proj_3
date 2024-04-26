@@ -40,7 +40,6 @@ void read_in_file(char* disk, FILE* file, char* fileName){
     sfs_inode_t inodes[2];
     driver_read(inodes, super->inodes);
 
-    int inodes_per_blk = super->block_size / sizeof(sfs_inode_t);
     int num_read_files = 0;
     int num_files = inodes[0].size / sizeof(sfs_dirent);
     for(int blk = 0; blk < super->num_inode_blocks; blk++){

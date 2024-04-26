@@ -52,7 +52,7 @@ void read_file(char* fileName){
         }
         i++;
     }
-    
+
     sfs_inode_t inodes[2];
     driver_read(inodes, super->inodes);
     int num_read_files = 0;
@@ -124,7 +124,7 @@ void read_file_long(char* fileName){
                 struct tm* time_tm = localtime(&realtime);
 
                 char time_str[25] = "";
-                strftime(time_str, 25, "%c", time_tm);
+                strftime(time_str, 25, "%a %b %d %H:%M %Y",time_tm);
                 printf("%10s %2d %2d %2d %5ld %24s ",
                 perms,
                 file_perms[which_inode].refcount,
