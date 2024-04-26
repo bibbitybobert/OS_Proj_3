@@ -21,7 +21,6 @@ int main(int argc, char* argv[]){
     else if(argc == 3){
         fileName = argv[1];
         option = argv[2];
-        char longOpt[2] = "-l";
         if(!strcmp(option, "-l")){
             read_file_long(fileName);
         }
@@ -53,16 +52,9 @@ void read_file(char* fileName){
         }
         i++;
     }
-
-    // printf("Num blocks: %d\n", super->num_blocks);
-    // printf("num_inode blocks: %d\n", super->num_inode_blocks);
-    // printf("num free inodes: %d\n", super->inodes_free);
-
+    
     sfs_inode_t inodes[2];
     driver_read(inodes, super->inodes);
-
-    //driver_read(buffer, inodes[0].direct[0]);
-    int inodes_per_blk = super->block_size / sizeof(sfs_inode_t);
     int num_read_files = 0;
     int num_files = inodes[0].size / sizeof(sfs_dirent);
     for(int blk = 0; blk < super->num_inode_blocks; blk++){
@@ -82,21 +74,6 @@ void read_file(char* fileName){
             return;
         }
     }
-
-    /*
-    printing out access time
-    day of week - month - day - time(military) - year
-    asctime();
-
-    superblock incorrect with rootdir, num free inodes
-    correct with inode table, bitmap
-
-    when writing, correct superblock
-
-
-    */
-
-
 
     driver_detach_disk_image();
 
@@ -123,7 +100,6 @@ void read_file_long(char* fileName){
 
     sfs_inode_t * inodes = (sfs_inode_t *)raw_root_inode;
 
-    int inodes_per_blk = super->block_size / sizeof(sfs_inode_t);
     int num_read_files = 0;
     int num_files = inodes[0].size / sizeof(sfs_dirent);
     for(int blk = 0; blk < super->num_inode_blocks; blk++){
@@ -169,7 +145,6 @@ void read_file_long(char* fileName){
 
 void get_perms(uint16_t perms_int, char* perms_char){
     uint16_t mask = 256;
-    //char perms[10] = {'-','-', '-', '-','-','-', '-', '-', '-', '-'};
     for(int i = 1; i < 10; i++){
         if(mask & perms_int){
             perms_char[i] = '1';
@@ -202,7 +177,6 @@ void set_first_bit(uint8_t fileType, char* perms){
 }
 
 void get_atime(uint32_t atime, char* dow, char* month, int day, char* time, int year){
-    //day of week - month - day - time(military) - year
     char hr[3];
     char min[3];
 
