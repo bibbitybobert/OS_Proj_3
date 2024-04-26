@@ -22,6 +22,8 @@ void read_file_long(char* fileName);
 
 void get_perms(uint16_t perm_int, char* perms);
 
+void set_first_bit(uint8_t fileType, char* perms);
+
 void get_atime(uint32_t atime, char* dow, char* month, int day, char* time, int year);
 
 

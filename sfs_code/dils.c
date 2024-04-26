@@ -141,7 +141,8 @@ void read_file_long(char* fileName){
                 sfs_inode_t* file_perms = (sfs_inode_t *)perm_buffer;
 
                 int which_inode = dir[i].inode%2;
-                char perms[11] = {'-','-','-','-','-','-','-','-','-','-','\0'};
+                char perms[11] = {'-','-','-','-','-','-','-','-','-', '-', '\0'};
+                set_first_bit(file_perms[which_inode].type, perms);
                 get_perms(file_perms[which_inode].perm, perms);
                 time_t realtime = (time_t)file_perms[which_inode].atime;
                 struct tm* time_tm = localtime(&realtime);
@@ -167,16 +168,15 @@ void read_file_long(char* fileName){
 }
 
 void get_perms(uint16_t perms_int, char* perms_char){
-    uint16_t mask = 512;
+    uint16_t mask = 256;
     //char perms[10] = {'-','-', '-', '-','-','-', '-', '-', '-', '-'};
-    for(int i = 0; i < 10; i++){
-        mask = mask >> 1;
+    for(int i = 1; i < 10; i++){
         if(mask & perms_int){
             perms_char[i] = '1';
         }
+        mask = mask >> 1;
     }
 
-    if(perms_char[0] == '1'){perms_char[0] = 'd';}
     if(perms_char[1] == '1'){perms_char[1] = 'r';}
     if(perms_char[2] == '1'){perms_char[2] = 'w';}
     if(perms_char[3] == '1'){perms_char[3] = 'x';}
@@ -186,6 +186,19 @@ void get_perms(uint16_t perms_int, char* perms_char){
     if(perms_char[7] == '1'){perms_char[7] = 'r';}
     if(perms_char[8] == '1'){perms_char[8] = 'w';}
     if(perms_char[9] == '1'){perms_char[9] = 'x';}
+}
+
+void set_first_bit(uint8_t fileType, char* perms){
+    switch(fileType){
+        case 0: perms[0] = '-'; break;
+        case 1: perms[0] = 'd'; break;
+        case 2: perms[0] = 'c'; break;
+        case 3: perms[0] = 'b'; break;
+        case 4: perms[0] = 'p'; break;
+        case 5: perms[0] = 's'; break;
+        case 6: perms[0] = 'l'; break;
+        default: perms[0] = '-'; break;
+    }
 }
 
 void get_atime(uint32_t atime, char* dow, char* month, int day, char* time, int year){
