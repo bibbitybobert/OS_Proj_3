@@ -1,6 +1,34 @@
+DILS:
+DILS (Disk Image List) is a small program that gets the details of the files contained in a disk image
+in one of two ways, either just the names of the files, or an extended list of details
+for each file in the disk image.
 
-You can compile the example with:
+To run dils you first need to compile the code with one of the following options:
+1. Check for errors in the code (there should be none) 
+  gcc -Wall -Werror -I. -o dils dils.c driver.c
+2. No error checking (you have faith in my code) (bad idea)
+  gcc -I. -o dils dils.c driver.c
 
-  gcc -I. -o example example.c driver.c
+After compilation, you can then run dils in one of two ways:
+1. List only the file names of a disk image with the command (ls command in unix):
+  ./dils <diskImage>
 
-You can copy example.c to cp_from_rd.c and use it to start your project.
+2. List the file names with details (ls -al in unix):
+  ./dils <diskImage> -l
+
+
+DICPO:
+DICPO (Disk Image Copy Out) is a small program that will copy a file from a provided disk image to the user's
+current working directory.
+
+To run DICPO you first need to compile using one of two options
+1. Check for errors in my code (smart idea)
+  gcc -Wall -Werror -I. -o dicpo dicpo.c driver.c
+
+2. No error checking (cmon man...)
+  gcc -I. -o dicpo dicpo.c driver.c
+
+After compilationm, you can then run dicpo to copy the file from the disk image
+to your current working directory using the command:
+
+./dicpo <diskImage> <fileName>
