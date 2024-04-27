@@ -124,8 +124,8 @@ void read_file_long(char* fileName){
                 struct tm* time_tm = localtime(&realtime);
 
                 char time_str[25] = "";
-                strftime(time_str, 25, "%a %b %d %H:%M %Y",time_tm);
-                printf("%10s %2d %2d %2d %5ld %24s ",
+                strftime(time_str, 25, "%b %d %H:%M %Y",time_tm);
+                printf("%10s %1d %6d %6d %7ld %13s ",
                 perms,
                 file_perms[which_inode].refcount,
                 file_perms[which_inode].owner,
